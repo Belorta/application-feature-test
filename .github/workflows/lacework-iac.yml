@@ -17,7 +17,7 @@ jobs:
       - name: Scan the repo for vulnerabilities in IaC
         run: |
           set +e
-          echo "LW_ACCOUNT_NAME=${{ secrets.LW_ACCOUNT_NAME }}" >> env.list
+          echo "LW_ACCOUNT=${{ secrets.LW_ACCOUNT }}" >> env.list
           echo "LW_API_KEY=${{ secrets.LW_API_KEY }}" >> env.list
           echo "LW_API_SECRET=${{ secrets.LW_API_SECRET }}" >> env.list
           docker run \
