@@ -24,14 +24,19 @@ jobs:
             -s ${{ secrets.LW_API_SECRET }} \
             --noninteractive
           lacework component install sca
-      - name: Checkout main branch
-        uses: actions/checkout@v3
-        with:
-          ref: main
 
-      - name: Run Lacework SCA Scan
+      - name: Run Lacework SCA Scan (Upload to FortiCNAPP)
+        env:
+          SCA_GIT_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          lacework sca scan ./react-vulnerable-app -f sarif -o lacework-scan.sarif
+          lacework sca scan \
+            https://github.com/Belorta/lacework-feature-test.git \
+            --basic-env-auth=true \
+            --save-results=true \
+            --deployment=ci \
+            -f sarif \
+            -o lacework-scan.sarif
+
       - name: Upload SARIF to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v3
         with:
