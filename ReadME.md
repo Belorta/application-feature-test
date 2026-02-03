@@ -1,3 +1,3 @@
-# Lacework Feature Test
+# Feature Test
 
-This repository is used for testing Lacework features.
+This repository is used for testing features.
