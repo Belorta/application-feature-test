@@ -1,35 +1,23 @@
-name: lacework-iac-example
+name: Checkmarx Scan (CxOne)
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-24.04
+  scan:
+    runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout Code
+      - name: Checkout source
         uses: actions/checkout@v3
 
-      - name: Scan the repo for vulnerabilities in IaC
-        run: |
-          set +e
-          echo "LW_ACCOUNT=${{ secrets.LW_ACCOUNT }}" >> env.list
-          echo "LW_API_KEY=${{ secrets.LW_API_KEY }}" >> env.list
-          echo "LW_API_SECRET=${{ secrets.LW_API_SECRET }}" >> env.list
-          docker run \
-            --env-file env.list \
-            -v "$(pwd):/app/src" \
-            lacework/codesec:stable \
-            lacework iac scan -d /app/src/terraform --upload
-          SCAN_EXIT_STATUS=$?
-          echo "SCAN_EXIT_STATUS=$SCAN_EXIT_STATUS" >> "$GITHUB_ENV"
-          set -e
-
-      - name: Scan Status
-        run: |
-          echo "IaC scan completed with status $SCAN_EXIT_STATUS"
-          exit 0
+      - name: Run Checkmarx AST Scan
+        uses: Checkmarx/ast-github-action@v1
+        with:
+          base_uri: https://sng.ast.checkmarx.net
+          cx_client_id: ${{ secrets.CX_CLIENT_ID }}
+          cx_client_secret: ${{ secrets.CX_CLIENT_SECRET }}
+          project_name: ${{ github.repository }}
