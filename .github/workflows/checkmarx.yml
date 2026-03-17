@@ -1,8 +1,10 @@
-name: Checkmarx Scan (CxFlow)
+name: Checkmarx Scan (CxOne)
 
 on:
-  pull_request:
+  push:
     branches: [ main ]
+  pull_request:
+  workflow_dispatch:
 
 jobs:
   scan:
@@ -12,25 +14,10 @@ jobs:
       - name: Checkout source
         uses: actions/checkout@v3
 
-      - name: Run Checkmarx Scan via CxFlow
-        run: |
-          docker run --rm \
-            -e CHECKMARX_SERVER=${{ secrets.CHECKMARX_SERVER }} \
-            -e CHECKMARX_USERNAME=${{ secrets.CHECKMARX_USERNAME }} \
-            -e CHECKMARX_PASSWORD=${{ secrets.CHECKMARX_PASSWORD }} \
-            -e GITHUB_TOKEN=${{ secrets.GH_TOKEN }} \
-            -v ${{ github.workspace }}:/src \
-            checkmarx/cx-flow:latest \
-            --scan \
-            --app=${{ github.repository }} \
-            --repo-name=${{ github.repository }} \
-            --branch=${{ github.head_ref }} \
-            --namespace=${{ github.repository_owner }} \
-            --repo=${{ github.event.repository.name }} \
-            --merge-id=${{ github.event.pull_request.number }} \
-            --bug-tracker=GITHUBPULL
-
-      - name: Upload SARIF (optional)
-        uses: github/codeql-action/upload-sarif@v1
+      - name: Run Checkmarx AST Scan
+        uses: Checkmarx/ast-github-action@v1
         with:
-          sarif_file: cx.sarif
+          base_uri: https://sng.ast.checkmarx.net
+          cx_client_id: ${{ secrets.CX_CLIENT_ID }}
+          cx_client_secret: ${{ secrets.CX_CLIENT_SECRET }}
+          project_name: ${{ github.repository }}
